@@ -1,4 +1,3 @@
-// moment: biblioteca que cria e formata datas.
 const moment = require('moment')
 const conexao = require('../infraestrutura/conexao')
 
@@ -8,26 +7,24 @@ class Atendimento {
         const dataCriacao = moment().format('YYYY-MM-DD HH:MM:SS')
         const data = moment(atendimento.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:MM:SS')
 
-        // validações relacionadas as regras de negócio.
         const dataEhValida = moment(data).isSameOrAfter(dataCriacao)
         const clienteEhValido = atendimento.cliente.length >= 5
         const validacoes = [
             {
                 nome:data,
-                valido:dataEhValida, //retorna true or false
+                valido:dataEhValida,
                 mensagem:'Data deve ser maior ou igual a data atual'
             },
             {
                 nome:'cliente',
-                valido:clienteEhValido, //retorna true or false
+                valido:clienteEhValido,
                 mensagem:'Data deve ter pelo menos cinco caracteres'
             }
         ]
 
-        const erros = validacoes.filter((campo) => !campo.valido) //só retorna se for false.
-        const existemErros = erros.length // if 0 == false
+        const erros = validacoes.filter((campo) => !campo.valido) 
+        const existemErros = erros.length
 
-        // se houverem erros, o banco de dados nem é chamado.
         if(existemErros) {
             res.status(400).json(erros)
         } else {
@@ -35,17 +32,14 @@ class Atendimento {
             const atendimentoDatado = {...atendimento, dataCriacao, data}
             const sql = 'INSERT INTO Atendimentos SET ?'
 
-        // Não esquecer de responder status para o cliente.
             conexao.query(sql,atendimentoDatado,(erro,resultados) => {
-            if(erro){
+                if(erro){
                res.status(400).json(erro)
-            }else{
+                }else{
                 res.status(201).json(atendimento)
-            }
-        })
-
+                }
+            })
         }
-        
     }
 
     lista(res){
